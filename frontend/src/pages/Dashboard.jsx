@@ -12,6 +12,18 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const isMock = !!localStorage.getItem('tc_mock_session');
+    if (isMock) {
+      setStats({ total_patients: 12, appointments_today: 3, unread_alerts: 1, messages_today: 8 });
+      setAppointments([
+        { id: '1', scheduled_at: new Date().toISOString(), status: 'confirmed', patients: { name: 'Aarav Sharma' }, notes: 'Follow-up' },
+        { id: '2', scheduled_at: new Date(Date.now() + 3600000).toISOString(), status: 'scheduled', patients: { name: 'Meera Patel' }, notes: 'Vaccination' },
+        { id: '3', scheduled_at: new Date(Date.now() + 7200000).toISOString(), status: 'scheduled', patients: { name: 'Rohan Gupta' }, notes: '' },
+      ]);
+      setLoading(false);
+      return;
+    }
+
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
     const tomorrowStr = new Date(today.getTime() + 86400000).toISOString().split('T')[0];

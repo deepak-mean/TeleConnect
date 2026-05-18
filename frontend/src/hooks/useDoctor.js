@@ -4,12 +4,24 @@ import api from '../lib/api';
 
 const DoctorContext = createContext(null);
 
+const MOCK_STATS = { total_patients: 12, appointments_today: 3, unread_alerts: 1, messages_today: 8 };
+
 export function DoctorProvider({ children }) {
   const [session, setSession] = useState(null);
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check mock session first
+    const mock = localStorage.getItem('tc_mock_session');
+    if (mock) {
+      const mockDoctor = JSON.parse(mock);
+      setSession({ mock: true });
+      setDoctor(mockDoctor);
+      setLoading(false);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) fetchDoctor();
@@ -37,6 +49,7 @@ export function DoctorProvider({ children }) {
   }
 
   async function signOut() {
+    localStorage.removeItem('tc_mock_session');
     await supabase.auth.signOut();
     setSession(null);
     setDoctor(null);

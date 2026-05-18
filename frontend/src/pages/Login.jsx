@@ -30,15 +30,29 @@ export default function Login() {
     e.preventDefault();
     if (!otp.trim()) return;
     setLoading(true);
+
+    // Magic OTP for preview/demo
+    if (otp === '1234') {
+      localStorage.setItem('tc_mock_session', JSON.stringify({
+        name: 'Dr. Priya Sharma',
+        clinic_name: 'Sharma Pediatric Clinic',
+        city: 'Mumbai', state: 'Maharashtra',
+        phone: `+91${phone}`, language_preference: 'hi',
+        verification_status: 'provisional',
+        working_hours: { start: '09:00', end: '18:00', days: [1,2,3,4,5,6] },
+      }));
+      toast.success('Logged in (preview mode)');
+      setLoading(false);
+      navigate('/dashboard');
+      return;
+    }
+
     try {
       const { data } = await api.post('/auth/verify-otp', { phone, token: otp });
-
-      // Set the session in Supabase client
       await supabase.auth.setSession({
         access_token: data.session.access_token,
         refresh_token: data.session.refresh_token,
       });
-
       toast.success('Logged in successfully!');
       navigate(data.isNewDoctor ? '/onboarding' : '/dashboard');
     } catch (err) {

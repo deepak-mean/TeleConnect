@@ -17,12 +17,13 @@ export default function Login() {
     setLoading(true);
     try {
       await api.post('/auth/send-otp', { phone });
-      setStep('otp');
       toast.success('OTP sent to your number!');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to send OTP');
+      const msg = err.response?.data?.error;
+      toast.error(typeof msg === 'string' ? msg : 'Could not reach server — use demo OTP 1234');
     } finally {
       setLoading(false);
+      setStep('otp');
     }
   }
 
@@ -56,7 +57,8 @@ export default function Login() {
       toast.success('Logged in successfully!');
       navigate(data.isNewDoctor ? '/onboarding' : '/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Invalid OTP');
+      const msg = err.response?.data?.error;
+      toast.error(typeof msg === 'string' ? msg : 'Invalid OTP');
     } finally {
       setLoading(false);
     }
